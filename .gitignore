@@ -1,0 +1,27 @@
+# Локальные журналы и административные результаты
+/answere.txt
+/run
+
+# Device-specific образы, дампы и резервные копии
+*.img
+*.7z
+*.iso
+*.dump
+*.bin
+*.hex
+*.uf2
+
+# Секреты и локальные настройки
+.env
+.env.*
+*.key
+*.pem
+id_rsa*
+id_ed25519*
+authorized_keys
+
+# Временные и пользовательские файлы
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
