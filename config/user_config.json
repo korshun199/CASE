@@ -1,0 +1,19 @@
+{
+  "interface": {
+    "colors": {
+      "background": "#101820",
+      "panel": "#182B3A",
+      "button": "#176B87",
+      "button_active": "#2385A5",
+      "text": "#F4F7F9",
+      "status": "#B4D4E4"
+    },
+    "font": {
+      "family": "DejaVu Sans",
+      "title_size": 34,
+      "subtitle_size": 16,
+      "button_size": 20,
+      "status_size": 13
+    }
+  }
+}

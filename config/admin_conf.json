@@ -1,0 +1,115 @@
+{
+  "shell": {
+    "title": "CASE",
+    "subtitle": "Выберите задачу",
+    "fullscreen": true,
+    "initial_status": "Система готова. Выберите разрешённую задачу.",
+    "title_weight": "bold",
+    "button_wrap_fraction": 0.82,
+    "status_wrap_fraction": 0.88,
+    "application_poll_interval_ms": 400,
+    "application_log_path": "/home/case/.local/state/case/applications.log",
+    "text_positions": {
+      "title": {"x": 0.06, "y": 0.045, "width": 0.88, "height": 0.09},
+      "subtitle": {"x": 0.06, "y": 0.145, "width": 0.88, "height": 0.06},
+      "status": {"x": 0.06, "y": 0.82, "width": 0.88, "height": 0.11}
+    }
+  },
+  "display": {
+    "active_profile": "case_17_full_hd",
+    "profiles": {
+      "case_17_full_hd": {
+        "label": "Монитор кейса 17 дюймов",
+        "model": "Указать модель монитора",
+        "resolution": "1920x1080",
+        "orientation": "landscape",
+        "ui_scale": 1.0,
+        "button_positions": {
+          "video_recognition": {"x": 0.07, "y": 0.29, "width": 0.40, "height": 0.19},
+          "radio_scan": {"x": 0.53, "y": 0.29, "width": 0.40, "height": 0.19},
+          "user_settings": {"x": 0.07, "y": 0.53, "width": 0.40, "height": 0.19},
+          "device_status": {"x": 0.53, "y": 0.53, "width": 0.40, "height": 0.19}
+        }
+      },
+      "portable_10_hd": {
+        "label": "Компактный монитор 1280x720",
+        "model": "Указать модель монитора",
+        "resolution": "1280x720",
+        "orientation": "landscape",
+        "ui_scale": 0.9,
+        "button_positions": {
+          "video_recognition": {"x": 0.06, "y": 0.29, "width": 0.42, "height": 0.19},
+          "radio_scan": {"x": 0.52, "y": 0.29, "width": 0.42, "height": 0.19},
+          "user_settings": {"x": 0.06, "y": 0.53, "width": 0.42, "height": 0.19},
+          "device_status": {"x": 0.52, "y": 0.53, "width": 0.42, "height": 0.19}
+        }
+      }
+    }
+  },
+  "applications": [
+    {
+      "id": "video_recognition",
+      "label": "Распознавание видео",
+      "description": "Программа распознавания потокового видео.",
+      "enabled": true,
+      "button": {
+        "background": "#176B87",
+        "active_background": "#2385A5",
+        "foreground": "#FFFFFF",
+        "font_family": "DejaVu Sans",
+        "font_size": 24,
+        "font_weight": "bold",
+        "relief": "flat"
+      },
+      "launch": {"argv": []}
+    },
+    {
+      "id": "radio_scan",
+      "label": "Сканирование радиоэфира",
+      "description": "Программа анализа радиоэфира.",
+      "enabled": true,
+      "button": {
+        "background": "#7353BA",
+        "active_background": "#8A70C9",
+        "foreground": "#FFFFFF",
+        "font_family": "DejaVu Sans",
+        "font_size": 24,
+        "font_weight": "bold",
+        "relief": "flat"
+      },
+      "launch": {"argv": []}
+    },
+    {
+      "id": "user_settings",
+      "label": "Настройки пользователя",
+      "description": "Параметры оформления и разрешённые настройки CASE.",
+      "enabled": true,
+      "button": {
+        "background": "#287A58",
+        "active_background": "#36966F",
+        "foreground": "#FFFFFF",
+        "font_family": "DejaVu Sans",
+        "font_size": 22,
+        "font_weight": "bold",
+        "relief": "flat"
+      },
+      "launch": {"argv": []}
+    },
+    {
+      "id": "device_status",
+      "label": "Состояние прибора",
+      "description": "Состояние системы и подключённых датчиков.",
+      "enabled": true,
+      "button": {
+        "background": "#A65E2E",
+        "active_background": "#C4763E",
+        "foreground": "#FFFFFF",
+        "font_family": "DejaVu Sans",
+        "font_size": 22,
+        "font_weight": "bold",
+        "relief": "flat"
+      },
+      "launch": {"argv": []}
+    }
+  ]
+}
