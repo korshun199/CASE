@@ -159,6 +159,44 @@ def validate_admin_config(config: dict[str, Any]) -> None:
     device_path = video_source.get("device")
     if not isinstance(device_path, str) or (device_path and not Path(device_path).is_absolute()):
         raise ConfigError("admin_conf.videoscan.video_source.device должен быть пустым или абсолютным путём")
+    require_integer(video_source, "width", "admin_conf.videoscan.video_source", 160, 4096)
+    require_integer(video_source, "height", "admin_conf.videoscan.video_source", 120, 2160)
+    require_integer(video_source, "fps", "admin_conf.videoscan.video_source", 1, 60)
+    require_integer(videoscan, "frame_interval_ms", "admin_conf.videoscan", 30, 1000)
+    require_integer(
+        videoscan, "camera_reconnect_interval_ms", "admin_conf.videoscan", 500, 30000
+    )
+    require_color(videoscan, "overlay_color", "admin_conf.videoscan")
+    require_color(videoscan, "overlay_text_color", "admin_conf.videoscan")
+    require_color(videoscan, "surface_color", "admin_conf.videoscan")
+    require_string(videoscan, "title", "admin_conf.videoscan")
+    require_string(videoscan, "subtitle", "admin_conf.videoscan")
+
+    status = require_mapping(config, "system_status", "admin_conf")
+    require_string(status, "title", "admin_conf.system_status")
+    require_string(status, "subtitle", "admin_conf.system_status")
+    require_integer(status, "refresh_interval_ms", "admin_conf.system_status", 1000, 30000)
+    status_colors = require_mapping(status, "colors", "admin_conf.system_status")
+    for color_name in ("card", "bar_background", "ok", "warning", "error", "muted"):
+        require_color(status_colors, color_name, "admin_conf.system_status.colors")
+    paths = require_mapping(status, "paths", "admin_conf.system_status")
+    for path_name in ("model", "uptime", "memory", "thermal_glob", "camera_glob", "usb_glob"):
+        path_value = require_string(paths, path_name, "admin_conf.system_status.paths")
+        if not Path(path_value.split("*")[0]).is_absolute():
+            raise ConfigError(
+                f"admin_conf.system_status.paths.{path_name} должен начинаться с абсолютного пути"
+            )
+    services = status.get("services")
+    if not isinstance(services, list) or not services:
+        raise ConfigError("admin_conf.system_status.services должен быть непустым списком")
+    for position, service in enumerate(services, start=1):
+        location = f"admin_conf.system_status.services[{position}]"
+        if not isinstance(service, dict):
+            raise ConfigError(f"{location} должен быть объектом")
+        service_id = require_string(service, "id", location)
+        if not re.fullmatch(r"[a-zA-Z0-9_.@-]+", service_id):
+            raise ConfigError(f"{location}.id содержит недопустимые символы")
+        require_string(service, "label", location)
 
     applications = config.get("applications")
     if not isinstance(applications, list) or not applications:

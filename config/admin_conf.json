@@ -1,7 +1,7 @@
 {
   "shell": {
-    "title": "CASE",
-    "subtitle": "Выберите задачу",
+    "title": "Модель T16",
+    "subtitle": "Монитор: 17 дюймов (1920×1080)",
     "fullscreen": true,
     "initial_status": "Система готова. Выберите разрешённую задачу.",
     "title_weight": "bold",
@@ -112,10 +112,59 @@
     "class_names": ["quadcopter"],
     "confidence_threshold": 0.25,
     "nms_threshold": 0.45,
+    "frame_interval_ms": 80,
+    "camera_reconnect_interval_ms": 1500,
+    "title": "Распознавание видео",
+    "subtitle": "Поток USB-камеры • YOLOv8 • CPU",
+    "overlay_color": "#35D07F",
+    "overlay_text_color": "#FFFFFF",
+    "surface_color": "#102330",
     "video_source": {
       "kind": "uvc",
-      "device": ""
+      "device": "/dev/v4l/by-id/usb-046d_Brio_90_2613ZBY23218-video-index0",
+      "width": 640,
+      "height": 480,
+      "fps": 30
     }
+  },
+  "system_status": {
+    "title": "Состояние системы",
+    "subtitle": "Модель T16 • контроль готовности прибора",
+    "refresh_interval_ms": 3000,
+    "colors": {
+      "card": "#20384B",
+      "bar_background": "#102330",
+      "ok": "#35D07F",
+      "warning": "#F2C94C",
+      "error": "#EB5757",
+      "muted": "#9FB3C8"
+    },
+    "paths": {
+      "model": "/proc/device-tree/model",
+      "uptime": "/proc/uptime",
+      "memory": "/proc/meminfo",
+      "thermal_glob": "/sys/class/thermal/thermal_zone*/temp",
+      "camera_glob": "/dev/video*",
+      "usb_glob": "/sys/bus/usb/devices/*/product"
+    },
+    "services": [
+      {
+        "id": "case-kiosk.service",
+        "label": "Главное меню"
+      },
+      {
+        "id": "ssh.service",
+        "label": "SSH-обслуживание"
+      },
+      {
+        "id": "NetworkManager.service",
+        "label": "Сеть"
+      },
+      {
+        "id": "docker.service",
+        "label": "Docker"
+      }
+    ]
   },
   "applications": [
     {
@@ -133,7 +182,11 @@
         "relief": "flat"
       },
       "launch": {
-        "argv": []
+        "argv": [
+          "/opt/case/videoscan-venv/bin/python",
+          "-m",
+          "vision.VIDEOSCAN"
+        ]
       }
     },
     {
@@ -187,7 +240,7 @@
         "relief": "flat"
       },
       "launch": {
-        "argv": []
+        "argv": ["/usr/bin/python3", "-m", "app.system_status"]
       }
     }
   ]

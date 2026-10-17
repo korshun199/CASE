@@ -16,7 +16,9 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 USER_CONFIG_PATH = PROJECT_ROOT / "config" / "user_config.json"
 ADMIN_CONFIG_PATH = PROJECT_ROOT / "config" / "admin_conf.json"
 MENU_APPLICATION_PATH = PROJECT_ROOT / "app" / "main.py"
+STATUS_MODULE_PATH = PROJECT_ROOT / "app" / "system_status.py"
 VIDEOSCAN_DIRECTORY = PROJECT_ROOT / "vision" / "VIDEOSCAN"
+VIDEOSCAN_MODULE_PATH = VIDEOSCAN_DIRECTORY / "__main__.py"
 VIDEOSCAN_REQUIREMENTS_PATH = VIDEOSCAN_DIRECTORY / "requirements-dev.txt"
 QEMU_SCRIPT_PATH = PROJECT_ROOT / "scripts" / "qemu_aarch64.sh"
 BOOTSTRAP_SCRIPT_PATH = PROJECT_ROOT / "scripts" / "bootstrap_orangepi5_access.sh"
@@ -24,12 +26,13 @@ BOOTSTRAP_SCRIPT_PATH = PROJECT_ROOT / "scripts" / "bootstrap_orangepi5_access.s
 
 def check_required_paths() -> None:
     """Проверяет постоянные файлы, без которых прототип не запускается."""
-    required_paths = (USER_CONFIG_PATH, ADMIN_CONFIG_PATH, MENU_APPLICATION_PATH)
+    required_paths = (USER_CONFIG_PATH, ADMIN_CONFIG_PATH, MENU_APPLICATION_PATH, STATUS_MODULE_PATH)
     missing_paths = [str(path.relative_to(PROJECT_ROOT)) for path in required_paths if not path.is_file()]
     if missing_paths:
         raise RuntimeError("Не найдены обязательные файлы: " + ", ".join(missing_paths))
     videoscan_files = (
         VIDEOSCAN_DIRECTORY / "__init__.py",
+        VIDEOSCAN_MODULE_PATH,
         VIDEOSCAN_DIRECTORY / "README.md",
         VIDEOSCAN_REQUIREMENTS_PATH,
         QEMU_SCRIPT_PATH,
@@ -55,6 +58,16 @@ def check_videoscan_configuration() -> None:
         raise RuntimeError("Первой моделью VIDEOSCAN должна быть проверенная FPV-модель 320x320")
     if videoscan["class_names"] != ["quadcopter"]:
         raise RuntimeError("Список классов должен соответствовать выбранной FPV-модели")
+    device = videoscan["video_source"]["device"]
+    if not device.endswith("usb-046d_Brio_90_2613ZBY23218-video-index0"):
+        raise RuntimeError("Для Orange Pi 5 нужен стабильный путь к USB-камере Brio")
+    if videoscan["camera_reconnect_interval_ms"] < 500:
+        raise RuntimeError("Повторное подключение камеры настроено слишком часто")
+    recognition_app = next(
+        app for app in admin_config["applications"] if app["id"] == "video_recognition"
+    )
+    if recognition_app["launch"]["argv"][0] != "/opt/case/videoscan-venv/bin/python":
+        raise RuntimeError("Распознавание должно запускаться в изолированной среде OpenCV")
 
 
 def check_yolov8_decoder() -> None:
@@ -110,6 +123,18 @@ def check_menu_module() -> None:
     compile(source_code, str(MENU_APPLICATION_PATH), "exec")
 
 
+def check_system_status_module() -> None:
+    """Проверяет, что экран состояния компилируется без запуска графической сессии."""
+    source_code = STATUS_MODULE_PATH.read_text(encoding="utf-8")
+    compile(source_code, str(STATUS_MODULE_PATH), "exec")
+
+
+def check_videoscan_module() -> None:
+    """Проверяет синтаксис видеоконтурa без открытия камеры."""
+    source_code = VIDEOSCAN_MODULE_PATH.read_text(encoding="utf-8")
+    compile(source_code, str(VIDEOSCAN_MODULE_PATH), "exec")
+
+
 def run_check(name: str, check: Callable[[], None]) -> bool:
     """Запускает одну проверку и печатает единый результат для владельца."""
     try:
@@ -132,6 +157,8 @@ def main() -> int:
         ("Отклонение небезопасного формата команды запуска", check_invalid_launch_command_is_rejected),
         ("Отклонение перекрывающихся кнопок", check_overlapping_buttons_are_rejected),
         ("Синтаксис главного меню", check_menu_module),
+        ("Синтаксис экрана состояния", check_system_status_module),
+        ("Синтаксис приложения VIDEOSCAN", check_videoscan_module),
     )
     results = [run_check(name, check) for name, check in checks]
     return 0 if all(results) else 1
