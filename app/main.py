@@ -43,6 +43,8 @@ class CaseShell(tk.Tk):
 
         self.title(self.shell_settings["title"])
         self.configure(background=self.colors["background"])
+        # Явно задаём стандартный указатель, чтобы он оставался видимым в киоск-сессии.
+        self.configure(cursor="left_ptr")
         self.geometry(self.display_profile["resolution"])
         self.attributes("-fullscreen", self.shell_settings["fullscreen"])
         self.tk.call(

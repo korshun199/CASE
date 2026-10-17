@@ -132,6 +132,34 @@ def validate_admin_config(config: dict[str, Any]) -> None:
             f"admin_conf.display.active_profile указывает на отсутствующий профиль: {active_profile}"
         )
 
+    videoscan = require_mapping(config, "videoscan", "admin_conf")
+    if require_string(videoscan, "model_family", "admin_conf.videoscan") != "yolov8":
+        raise ConfigError("admin_conf.videoscan.model_family должен быть yolov8")
+    if require_string(videoscan, "model_format", "admin_conf.videoscan") != "onnx":
+        raise ConfigError("admin_conf.videoscan.model_format должен быть onnx")
+    model_path = videoscan.get("model_path")
+    if not isinstance(model_path, str) or (model_path and not Path(model_path).is_absolute()):
+        raise ConfigError("admin_conf.videoscan.model_path должен быть пустым или абсолютным путём")
+    if require_string(videoscan, "inference_backend", "admin_conf.videoscan") != "opencv_dnn":
+        raise ConfigError("admin_conf.videoscan.inference_backend должен быть opencv_dnn")
+    if require_string(videoscan, "inference_target", "admin_conf.videoscan") != "cpu":
+        raise ConfigError("admin_conf.videoscan.inference_target должен быть cpu")
+    require_integer(videoscan, "input_width", "admin_conf.videoscan", 32, 4096)
+    require_integer(videoscan, "input_height", "admin_conf.videoscan", 32, 4096)
+    class_names = videoscan.get("class_names")
+    if not isinstance(class_names, list) or not class_names or any(
+        not isinstance(class_name, str) or not class_name.strip() for class_name in class_names
+    ):
+        raise ConfigError("admin_conf.videoscan.class_names должен быть непустым списком названий классов")
+    require_number(videoscan, "confidence_threshold", "admin_conf.videoscan", 0.0, 1.0)
+    require_number(videoscan, "nms_threshold", "admin_conf.videoscan", 0.0, 1.0)
+    video_source = require_mapping(videoscan, "video_source", "admin_conf.videoscan")
+    if require_string(video_source, "kind", "admin_conf.videoscan.video_source") != "uvc":
+        raise ConfigError("admin_conf.videoscan.video_source.kind пока поддерживает только uvc")
+    device_path = video_source.get("device")
+    if not isinstance(device_path, str) or (device_path and not Path(device_path).is_absolute()):
+        raise ConfigError("admin_conf.videoscan.video_source.device должен быть пустым или абсолютным путём")
+
     applications = config.get("applications")
     if not isinstance(applications, list) or not applications:
         raise ConfigError("admin_conf.applications должен быть непустым списком")
